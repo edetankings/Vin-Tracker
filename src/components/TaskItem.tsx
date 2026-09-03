@@ -101,7 +101,7 @@ export function TaskItem({
               </DropdownMenuItem>
             ) : null}
             {onDelete ? (
-              <DropdownMenuItem variant="destructive" onClick={() => onDelete(task)}>
+              <DropdownMenuItem className="text-destructive" onClick={() => onDelete(task)}>
                 <Trash2 className="mr-2 h-4 w-4" /> Delete
               </DropdownMenuItem>
             ) : null}

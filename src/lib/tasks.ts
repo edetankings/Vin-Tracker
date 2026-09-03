@@ -162,7 +162,7 @@ export function calculateStreaks(tasks: Task[], today = new Date()) {
   let best = 1;
   let run = 1;
   for (let i = 1; i < sorted.length; i += 1) {
-    const prev = fromDateKey(sorted[i - 1]);
+    const prev = fromDateKey(sorted[i - 1]!);
     const expected = toDateKey(addDays(prev, 1));
     run = sorted[i] === expected ? run + 1 : 1;
     if (run > best) best = run;
