@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Moon, Sun, SunMoon } from "lucide-react";
+import { Bell, BellOff, Download, Moon, Sun, SunMoon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,7 +22,18 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { useTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-import { useTaskMutations, useTasks } from "@/lib/tasks";
+import { useTaskMutations, useTasks, toDateKey } from "@/lib/tasks";
+
+const APP_VERSION = "1.0.0";
+const NOTIF_KEY = "vin-reminders-enabled";
+
+function loadReminderPref() {
+  try {
+    return window.localStorage.getItem(NOTIF_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
