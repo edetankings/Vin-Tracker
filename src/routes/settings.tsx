@@ -67,6 +67,39 @@ function SettingsPage() {
   const { deleteAllTasks } = useTaskMutations(userId);
   const [draft, setDraft] = useState(name ?? "");
   const [saving, setSaving] = useState(false);
+  const [reminders, setReminders] = useState(loadReminderPref);
+
+  const toggleReminders = async () => {
+    const next = !reminders;
+    if (next && "Notification" in window && Notification.permission === "default") {
+      await Notification.requestPermission();
+    }
+    setReminders(next);
+    try {
+      window.localStorage.setItem(NOTIF_KEY, next ? "1" : "0");
+    } catch {
+      // storage unavailable
+    }
+    toast.success(next ? "Reminders turned on" : "Reminders turned off");
+  };
+
+  const exportData = () => {
+    const payload = {
+      app: "Vin Tracker",
+      version: APP_VERSION,
+      exported_at: new Date().toISOString(),
+      profile: { name },
+      tasks,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vin-tracker-export-${toDateKey(new Date())}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Your data has been exported");
+  };
 
   const saveName = async () => {
     if (!draft.trim()) {
@@ -126,9 +159,46 @@ function SettingsPage() {
       </section>
 
       <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
+        <p className="text-sm font-semibold">Notifications</p>
+        <button
+          type="button"
+          onClick={() => void toggleReminders()}
+          className="mt-3 flex w-full items-center justify-between gap-3 rounded-2xl border border-border px-3.5 py-3 text-left transition-colors hover:bg-secondary/60"
+        >
+          <span className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              {reminders ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+            </span>
+            <span>
+              <span className="block text-sm font-medium">Task reminders</span>
+              <span className="block text-xs text-muted-foreground">
+                Remind me about today's tasks
+              </span>
+            </span>
+          </span>
+          <span
+            className={cn(
+              "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+              reminders ? "bg-primary" : "bg-muted",
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all",
+                reminders ? "left-[22px]" : "left-0.5",
+              )}
+            />
+          </span>
+        </button>
+      </section>
+
+      <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
         <p className="text-sm font-semibold">Your data</p>
         <p className="mt-1 text-xs text-muted-foreground">{tasks.length} tasks saved</p>
         <div className="mt-3 space-y-2">
+          <Button variant="outline" className="w-full" onClick={exportData}>
+            <Download className="mr-2 h-4 w-4" /> Export my data
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="w-full">
@@ -178,6 +248,14 @@ function SettingsPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
+      </section>
+
+      <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
+        <p className="text-sm font-semibold">About</p>
+        <div className="mt-2 flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Vin Tracker</span>
+          <span className="font-medium">Version {APP_VERSION}</span>
         </div>
       </section>
 
