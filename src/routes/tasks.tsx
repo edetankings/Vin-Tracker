@@ -12,9 +12,16 @@ import { TaskSheet } from "@/components/TaskSheet";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { fromDateKey, useCategories, useTaskMutations, useTasks, type Task } from "@/lib/tasks";
+import {
+  fromDateKey,
+  toDateKey,
+  useCategories,
+  useTaskMutations,
+  useTasks,
+  type Task,
+} from "@/lib/tasks";
 
-type Filter = "all" | "active" | "completed";
+type Filter = "all" | "today" | "upcoming" | "completed";
 
 export const Route = createFileRoute("/tasks")({
   head: () => ({
@@ -49,8 +56,10 @@ function TasksPage() {
 
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase();
+    const todayKey = toDateKey(new Date());
     return tasks.filter((task) => {
-      if (filter === "active" && task.completed) return false;
+      if (filter === "today" && task.date !== todayKey) return false;
+      if (filter === "upcoming" && (task.date <= todayKey || task.completed)) return false;
       if (filter === "completed" && !task.completed) return false;
       if (category && task.category !== category) return false;
       if (query && !task.title.toLowerCase().includes(query)) return false;
@@ -68,7 +77,7 @@ function TasksPage() {
       />
 
       <div className="mt-3 flex gap-2">
-        {(["all", "active", "completed"] as Filter[]).map((value) => (
+        {(["all", "today", "upcoming", "completed"] as Filter[]).map((value) => (
           <button
             key={value}
             type="button"
