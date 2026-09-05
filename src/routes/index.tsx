@@ -114,6 +114,42 @@ function HomePage() {
         </div>
       ) : null}
 
+      <section className="mt-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-semibold">Recently Learned</h2>
+          <Link to="/notes" className="text-xs font-medium text-primary">
+            View All Notes
+          </Link>
+        </div>
+        {notes.length === 0 ? (
+          <Link
+            to="/notes"
+            className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-4 text-sm text-muted-foreground"
+          >
+            <NotebookPen className="h-5 w-5 text-primary" />
+            Capture what you learn — add your first note.
+          </Link>
+        ) : (
+          <div className="space-y-2.5">
+            {notes.slice(0, 3).map((note) => (
+              <Link
+                key={note.id}
+                to="/notes"
+                className="block rounded-2xl border border-border bg-card p-4 shadow-card"
+              >
+                <p className="truncate text-sm font-semibold">{note.title}</p>
+                {note.content ? (
+                  <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{note.content}</p>
+                ) : null}
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  {format(parseISO(note.updated_at), "d MMM yyyy")}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
       <AddTaskFab
         onClick={() => {
           setEditing(null);
