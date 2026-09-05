@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { BarChart3, CalendarDays, Home, ListChecks, Settings } from "lucide-react";
+import { BarChart3, CalendarDays, Home, ListChecks, NotebookPen, Settings } from "lucide-react";
 
 const items = [
   { to: "/", label: "Home", icon: Home },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/tasks", label: "Tasks", icon: ListChecks },
+  { to: "/notes", label: "Notes", icon: NotebookPen },
   { to: "/progress", label: "Progress", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;

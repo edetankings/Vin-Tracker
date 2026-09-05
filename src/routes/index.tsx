@@ -76,8 +76,8 @@ function HomePage() {
       {todays.length === 0 ? (
         <EmptyState
           icon={<ListChecks className="h-6 w-6" />}
-          title="Nothing planned yet"
-          description="Add your first task for today and start building momentum."
+          title="No tasks planned"
+          description="Plan something and start making progress."
           action={
             <Button
               onClick={() => {
