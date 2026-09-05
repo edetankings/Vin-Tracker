@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { BackgroundServices } from "@/components/BackgroundServices";
 import { Onboarding } from "@/components/Onboarding";
 import { useAuth } from "@/lib/auth";
 
@@ -16,5 +17,10 @@ export function AppGate({ children }: { children: ReactNode }) {
 
   if (!userId || !name) return <Onboarding />;
 
-  return <>{children}</>;
+  return (
+    <>
+      <BackgroundServices />
+      {children}
+    </>
+  );
 }
