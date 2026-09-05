@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { format } from "date-fns";
-import { CheckCircle2, Flame, ListChecks } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { format, parseISO } from "date-fns";
+import { CheckCircle2, Flame, ListChecks, NotebookPen } from "lucide-react";
 import { useState } from "react";
 
 import { AddTaskFab } from "@/components/AddTaskFab";
@@ -12,6 +12,7 @@ import { TaskItem } from "@/components/TaskItem";
 import { TaskSheet } from "@/components/TaskSheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { useNotes } from "@/lib/notes";
 import {
   calculateStreaks,
   completionRate,
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { userId, name } = useAuth();
   const { data: tasks = [] } = useTasks(userId);
+  const { data: notes = [] } = useNotes(userId);
   const { toggleTask, deleteTask } = useTaskMutations(userId);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
@@ -76,8 +78,8 @@ function HomePage() {
       {todays.length === 0 ? (
         <EmptyState
           icon={<ListChecks className="h-6 w-6" />}
-          title="Nothing planned yet"
-          description="Add your first task for today and start building momentum."
+          title="No tasks planned"
+          description="Plan something and start making progress."
           action={
             <Button
               onClick={() => {
@@ -111,6 +113,42 @@ function HomePage() {
           <CheckCircle2 className="h-4 w-4" /> All done for today. Great work!
         </div>
       ) : null}
+
+      <section className="mt-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-semibold">Recently Learned</h2>
+          <Link to="/notes" className="text-xs font-medium text-primary">
+            View All Notes
+          </Link>
+        </div>
+        {notes.length === 0 ? (
+          <Link
+            to="/notes"
+            className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-4 text-sm text-muted-foreground"
+          >
+            <NotebookPen className="h-5 w-5 text-primary" />
+            Capture what you learn — add your first note.
+          </Link>
+        ) : (
+          <div className="space-y-2.5">
+            {notes.slice(0, 3).map((note) => (
+              <Link
+                key={note.id}
+                to="/notes"
+                className="block rounded-2xl border border-border bg-card p-4 shadow-card"
+              >
+                <p className="truncate text-sm font-semibold">{note.title}</p>
+                {note.content ? (
+                  <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{note.content}</p>
+                ) : null}
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  {format(parseISO(note.updated_at), "d MMM yyyy")}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
 
       <AddTaskFab
         onClick={() => {
