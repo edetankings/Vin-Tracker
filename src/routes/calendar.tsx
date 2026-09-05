@@ -134,7 +134,14 @@ function CalendarPage() {
         </div>
       </section>
 
-      <h2 className="mt-5 mb-3 text-base font-semibold">{format(selected, "EEEE, d MMM")}</h2>
+      <div className="mt-5 mb-3 flex items-baseline justify-between gap-2">
+        <h2 className="text-base font-semibold">{format(selected, "EEEE, d MMM")}</h2>
+        {dayTasks.length > 0 ? (
+          <span className="text-xs font-medium text-muted-foreground">
+            {dayTasks.filter((t) => t.completed).length}/{dayTasks.length} completed
+          </span>
+        ) : null}
+      </div>
 
       {dayTasks.length === 0 ? (
         <EmptyState
