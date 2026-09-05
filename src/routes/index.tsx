@@ -12,6 +12,7 @@ import { TaskItem } from "@/components/TaskItem";
 import { TaskSheet } from "@/components/TaskSheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { useNotes } from "@/lib/notes";
 import {
   calculateStreaks,
   completionRate,
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { userId, name } = useAuth();
   const { data: tasks = [] } = useTasks(userId);
+  const { data: notes = [] } = useNotes(userId);
   const { toggleTask, deleteTask } = useTaskMutations(userId);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
