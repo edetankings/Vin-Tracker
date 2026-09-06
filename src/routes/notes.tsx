@@ -71,11 +71,13 @@ function NotesPage() {
     : notes;
 
   const openEditor = (note: Note | null) => {
+    setReading(null);
     setEditing(note);
     setTitle(note?.title ?? "");
     setContent(note?.content ?? "");
     setOpen(true);
   };
+
 
   const save = async () => {
     const trimmed = title.trim();
@@ -135,7 +137,7 @@ function NotesPage() {
             >
               <button
                 type="button"
-                onClick={() => openEditor(note)}
+                onClick={() => setReading(note)}
                 className="block w-full text-left"
               >
                 <h2 className="text-sm font-semibold">{note.title}</h2>
