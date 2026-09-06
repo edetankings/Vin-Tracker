@@ -34,7 +34,7 @@ export async function showNotification(title: string, body: string, tag?: string
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
   try {
-    new Notification(title, { body, icon: "/images/vin-icon.png", tag });
+    new Notification(title, { body, icon: "/images/vin-icon.png", ...(tag ? { tag } : {}) });
   } catch {
     // notifications unavailable in this context
   }
