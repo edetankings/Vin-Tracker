@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { Settings } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { BottomNav } from "@/components/BottomNav";
