@@ -34,7 +34,17 @@ export function AppShell({
                 <p className="mt-1 text-[13px] font-medium text-muted-foreground">{subtitle}</p>
               ) : null}
             </div>
-            {action}
+            <div className="flex shrink-0 items-center gap-2">
+              {action}
+              <Link
+                to="/settings"
+                aria-label="Settings"
+                className="press glass flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 text-muted-foreground"
+                activeProps={{ className: "text-primary" }}
+              >
+                <Settings className="h-[18px] w-[18px]" />
+              </Link>
+            </div>
           </header>
         ) : null}
         <div className="animate-rise [animation-delay:60ms]">{children}</div>
