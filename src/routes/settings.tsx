@@ -68,19 +68,31 @@ function SettingsPage() {
   const [draft, setDraft] = useState(name ?? "");
   const [saving, setSaving] = useState(false);
   const [reminders, setReminders] = useState(loadReminderPref);
+  const { canInstall, installed, install } = useInstallApp();
 
   const toggleReminders = async () => {
     const next = !reminders;
-    if (next && "Notification" in window && Notification.permission === "default") {
-      await Notification.requestPermission();
+    if (next) {
+      const permission = await requestNotificationPermission();
+      if (permission === "unsupported") {
+        toast.error("This browser can't show reminders");
+        return;
+      }
+      if (permission !== "granted") {
+        toast.error("Allow notifications to get reminders");
+        return;
+      }
     }
     setReminders(next);
-    try {
-      window.localStorage.setItem(NOTIF_KEY, next ? "1" : "0");
-    } catch {
-      // storage unavailable
-    }
+    setRemindersEnabled(next);
     toast.success(next ? "Reminders turned on" : "Reminders turned off");
+  };
+
+  const installApp = async () => {
+    const result = await install();
+    if (result === "unavailable") {
+      toast("Open the browser menu and choose \u201cAdd to Home screen\u201d");
+    }
   };
 
   const exportData = () => {
