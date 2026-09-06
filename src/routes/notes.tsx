@@ -60,6 +60,7 @@ function NotesPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [pendingDelete, setPendingDelete] = useState<Note | null>(null);
+  const [reading, setReading] = useState<Note | null>(null);
 
   const q = query.trim().toLowerCase();
   const visible = q
