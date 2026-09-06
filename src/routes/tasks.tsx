@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ListChecks } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
-import { AddTaskFab } from "@/components/AddTaskFab";
 import { AppGate } from "@/components/AppGate";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { TaskItem } from "@/components/TaskItem";
 import { TaskSheet } from "@/components/TaskSheet";
 import { Input } from "@/components/ui/input";
+import { onAddTask } from "@/lib/add-task-bus";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import {
@@ -53,6 +53,15 @@ function TasksPage() {
   const [search, setSearch] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
+
+  useEffect(
+    () =>
+      onAddTask(() => {
+        setEditing(null);
+        setSheetOpen(true);
+      }),
+    [],
+  );
 
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -148,12 +157,6 @@ function TasksPage() {
         )}
       </div>
 
-      <AddTaskFab
-        onClick={() => {
-          setEditing(null);
-          setSheetOpen(true);
-        }}
-      />
       <TaskSheet open={sheetOpen} onOpenChange={setSheetOpen} task={editing} />
     </AppShell>
   );

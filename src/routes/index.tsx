@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import { CheckCircle2, Flame, ListChecks, NotebookPen } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import { AddTaskFab } from "@/components/AddTaskFab";
 import { AppGate } from "@/components/AppGate";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,6 +10,7 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { TaskItem } from "@/components/TaskItem";
 import { TaskSheet } from "@/components/TaskSheet";
 import { Button } from "@/components/ui/button";
+import { onAddTask } from "@/lib/add-task-bus";
 import { useAuth } from "@/lib/auth";
 import { useNotes } from "@/lib/notes";
 import {
@@ -37,6 +37,15 @@ function HomePage() {
   const { toggleTask, deleteTask } = useTaskMutations(userId);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
+
+  useEffect(
+    () =>
+      onAddTask(() => {
+        setEditing(null);
+        setSheetOpen(true);
+      }),
+    [],
+  );
 
   const today = new Date();
   const todays = tasksForDate(tasks, today);
@@ -150,12 +159,6 @@ function HomePage() {
         )}
       </section>
 
-      <AddTaskFab
-        onClick={() => {
-          setEditing(null);
-          setSheetOpen(true);
-        }}
-      />
       <TaskSheet open={sheetOpen} onOpenChange={setSheetOpen} task={editing} />
     </AppShell>
   );
