@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bell, BellOff, Download, Moon, Sun, SunMoon } from "lucide-react";
+import { Bell, BellOff, Download, Moon, Smartphone, Sun, SunMoon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { useInstallApp } from "@/lib/pwa";
+import { requestNotificationPermission, setRemindersEnabled } from "@/lib/reminders";
 import { useTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useTaskMutations, useTasks, toDateKey } from "@/lib/tasks";
