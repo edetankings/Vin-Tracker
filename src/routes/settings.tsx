@@ -207,6 +207,32 @@ function SettingsPage() {
       </section>
 
       <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
+        <p className="text-sm font-semibold">App</p>
+        <div className="mt-3 flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <Smartphone className="h-4 w-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">
+              {installed ? "Vin Tracker is installed" : "Install Vin Tracker"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {installed
+                ? "You're using the installed app."
+                : "Add it to your home screen and open it like a normal app."}
+            </p>
+          </div>
+        </div>
+        {!installed ? (
+          <Button className="mt-3 w-full rounded-2xl" onClick={() => void installApp()}>
+            {canInstall ? "Install app" : "How to install"}
+          </Button>
+        ) : null}
+      </section>
+
+
+
+      <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
         <p className="text-sm font-semibold">Your data</p>
         <p className="mt-1 text-xs text-muted-foreground">{tasks.length} tasks saved</p>
         <div className="mt-3 space-y-2">
