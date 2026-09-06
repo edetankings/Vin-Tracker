@@ -7,12 +7,19 @@ type InstallPromptEvent = Event & {
 
 let deferredPrompt: InstallPromptEvent | null = null;
 
-export function registerServiceWorker() {
+/** Removes any previously registered app service worker (no offline caching is used). */
+export function cleanupServiceWorkers() {
   if (typeof window === "undefined") return;
   if (!("serviceWorker" in navigator)) return;
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-  });
+  navigator.serviceWorker
+    .getRegistrations()
+    .then((registrations) => {
+      for (const registration of registrations) {
+        const url = registration.active?.scriptURL ?? "";
+        if (url.endsWith("/sw.js")) void registration.update();
+      }
+    })
+    .catch(() => undefined);
 }
 
 export function isStandalone() {
