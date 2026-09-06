@@ -11,14 +11,14 @@ import {
   startOfWeek,
 } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import { AddTaskFab } from "@/components/AddTaskFab";
 import { AppGate } from "@/components/AppGate";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { TaskItem } from "@/components/TaskItem";
 import { TaskSheet } from "@/components/TaskSheet";
+import { onAddTask } from "@/lib/add-task-bus";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { tasksForDate, toDateKey, useTaskMutations, useTasks, type Task } from "@/lib/tasks";
@@ -47,6 +47,15 @@ function CalendarPage() {
   const [selected, setSelected] = useState(new Date());
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
+
+  useEffect(
+    () =>
+      onAddTask(() => {
+        setEditing(null);
+        setSheetOpen(true);
+      }),
+    [],
+  );
 
   const days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(month), { weekStartsOn: 1 }),
@@ -166,12 +175,6 @@ function CalendarPage() {
         </div>
       )}
 
-      <AddTaskFab
-        onClick={() => {
-          setEditing(null);
-          setSheetOpen(true);
-        }}
-      />
       <TaskSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
