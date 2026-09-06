@@ -166,6 +166,44 @@ function NotesPage() {
         )}
       </div>
 
+      <Sheet open={!!reading} onOpenChange={(next) => !next && setReading(null)}>
+        <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-3xl">
+          <SheetHeader className="px-0">
+            <SheetTitle className="text-left text-lg">{reading?.title}</SheetTitle>
+          </SheetHeader>
+          {reading ? (
+            <div className="pb-8">
+              <p className="text-[11px] text-muted-foreground">
+                {format(parseISO(reading.created_at), "MMMM d, yyyy")}
+                {reading.updated_at !== reading.created_at
+                  ? ` · updated ${format(parseISO(reading.updated_at), "MMMM d, yyyy")}`
+                  : ""}
+              </p>
+              <p className="mt-4 text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                {reading.content || "No details written for this note yet."}
+              </p>
+              <div className="mt-6 flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-2xl text-destructive"
+                  onClick={() => {
+                    setPendingDelete(reading);
+                    setReading(null);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" /> Delete
+                </Button>
+                <Button className="flex-1 rounded-2xl" onClick={() => openEditor(reading)}>
+                  Edit note
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
+
+
+
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="rounded-t-3xl">
           <SheetHeader className="px-0">
