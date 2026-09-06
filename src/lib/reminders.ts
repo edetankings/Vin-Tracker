@@ -33,22 +33,11 @@ export async function requestNotificationPermission() {
 export async function showNotification(title: string, body: string, tag?: string) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
-  const options: NotificationOptions = {
-    body,
-    icon: "/images/vin-icon.png",
-    badge: "/favicon.png",
-    tag,
-  };
   try {
-    const registration = await navigator.serviceWorker?.ready;
-    if (registration) {
-      await registration.showNotification(title, options);
-      return;
-    }
+    new Notification(title, { body, icon: "/images/vin-icon.png", ...(tag ? { tag } : {}) });
   } catch {
-    // fall through to page notification
+    // notifications unavailable in this context
   }
-  new Notification(title, options);
 }
 
 function readFired(): string[] {

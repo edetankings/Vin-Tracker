@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bell, BellOff, Download, Moon, Sun, SunMoon } from "lucide-react";
+import { Bell, BellOff, Download, Moon, Smartphone, Sun, SunMoon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { useInstallApp } from "@/lib/pwa";
+import { requestNotificationPermission, setRemindersEnabled } from "@/lib/reminders";
 import { useTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useTaskMutations, useTasks, toDateKey } from "@/lib/tasks";
@@ -68,19 +70,31 @@ function SettingsPage() {
   const [draft, setDraft] = useState(name ?? "");
   const [saving, setSaving] = useState(false);
   const [reminders, setReminders] = useState(loadReminderPref);
+  const { canInstall, installed, install } = useInstallApp();
 
   const toggleReminders = async () => {
     const next = !reminders;
-    if (next && "Notification" in window && Notification.permission === "default") {
-      await Notification.requestPermission();
+    if (next) {
+      const permission = await requestNotificationPermission();
+      if (permission === "unsupported") {
+        toast.error("This browser can't show reminders");
+        return;
+      }
+      if (permission !== "granted") {
+        toast.error("Allow notifications to get reminders");
+        return;
+      }
     }
     setReminders(next);
-    try {
-      window.localStorage.setItem(NOTIF_KEY, next ? "1" : "0");
-    } catch {
-      // storage unavailable
-    }
+    setRemindersEnabled(next);
     toast.success(next ? "Reminders turned on" : "Reminders turned off");
+  };
+
+  const installApp = async () => {
+    const result = await install();
+    if (result === "unavailable") {
+      toast("Open the browser menu and choose \u201cAdd to Home screen\u201d");
+    }
   };
 
   const exportData = () => {
@@ -191,6 +205,32 @@ function SettingsPage() {
           </span>
         </button>
       </section>
+
+      <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
+        <p className="text-sm font-semibold">App</p>
+        <div className="mt-3 flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <Smartphone className="h-4 w-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">
+              {installed ? "Vin Tracker is installed" : "Install Vin Tracker"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {installed
+                ? "You're using the installed app."
+                : "Add it to your home screen and open it like a normal app."}
+            </p>
+          </div>
+        </div>
+        {!installed ? (
+          <Button className="mt-3 w-full rounded-2xl" onClick={() => void installApp()}>
+            {canInstall ? "Install app" : "How to install"}
+          </Button>
+        ) : null}
+      </section>
+
+
 
       <section className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card">
         <p className="text-sm font-semibold">Your data</p>
