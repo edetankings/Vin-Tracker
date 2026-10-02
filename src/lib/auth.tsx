@@ -59,17 +59,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (rawName: string) => {
     const trimmed = rawName.trim();
-    let id = userId;
+
+    const freshAnonymousUser = async () => {
+      let lastError: unknown = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (!error && data.user) return data.user.id;
+        lastError = error;
+        await new Promise((resolve) => setTimeout(resolve, 800 * (attempt + 1)));
+      }
+      throw lastError ?? new Error("Could not create your profile.");
+    };
+
+    const saveProfile = async (id: string) => {
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ id, name: trimmed }, { onConflict: "id" });
+      return error;
+    };
+
+    // Reuse an existing session only if it is still valid on the server.
+    let id: string | null = null;
+    const { data: current } = await supabase.auth.getUser();
+    if (current.user) id = current.user.id;
     if (!id) {
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-      id = data.user?.id ?? null;
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      id = await freshAnonymousUser();
     }
-    if (!id) throw new Error("Could not create your profile. Please try again.");
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .upsert({ id, name: trimmed }, { onConflict: "id" });
+
+    let profileError = await saveProfile(id);
+    if (profileError) {
+      // Stale or broken session: start over with a brand-new profile.
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      id = await freshAnonymousUser();
+      profileError = await saveProfile(id);
+    }
     if (profileError) throw profileError;
+
     setUserId(id);
     setName(trimmed);
   };

@@ -19,8 +19,12 @@ export function Onboarding() {
     setBusy(true);
     try {
       await register(name);
-    } catch {
-      toast.error("Could not set up your profile. Please try again.");
+    } catch (error) {
+      console.error("Profile setup failed", error);
+      const detail = error instanceof Error ? error.message : "";
+      toast.error("Could not set up your profile. Please try again.", {
+        description: detail || undefined,
+      });
     } finally {
       setBusy(false);
     }
