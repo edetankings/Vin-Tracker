@@ -1,8 +1,10 @@
-import { Link } from "@tanstack/react-router";
-import { Settings } from "lucide-react";
-import type { ReactNode } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { Settings, TrendingUp } from "lucide-react";
+import { useRef, type ReactNode } from "react";
 
 import { BottomNav } from "@/components/BottomNav";
+import { Button } from "@/components/ui/button";
+import { useInterfaceMotion } from "@/hooks/use-interface-motion";
 
 export function AppShell({
   title,
@@ -15,19 +17,20 @@ export function AppShell({
   action?: ReactNode;
   children: ReactNode;
 }) {
+  const container = useRef<HTMLDivElement>(null);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  useInterfaceMotion(container, pathname);
   return (
-    <div className="relative min-h-screen bg-background">
-      <div className="app-aurora" aria-hidden="true">
-        <div className="animate-float absolute -top-32 -left-24 h-72 w-72 rounded-full bg-primary/25 blur-[90px]" />
-        <div className="animate-float absolute -top-20 -right-28 h-64 w-64 rounded-full bg-chart-5/20 blur-[90px] [animation-delay:-5s]" />
-        <div className="animate-float absolute top-1/3 -right-20 h-56 w-56 rounded-full bg-chart-4/15 blur-[90px] [animation-delay:-9s]" />
-      </div>
-
-      <div className="relative z-10 mx-auto w-full max-w-md px-4 pt-8 pb-36 sm:max-w-lg lg:max-w-2xl">
+    <div ref={container} className="interface-shell relative min-h-screen bg-background">
+      <div className="relative z-10 mx-auto w-full max-w-md px-6 pt-7 pb-36 sm:max-w-lg lg:max-w-2xl">
+        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-xs font-bold text-foreground" aria-label="Vin Tracker home">
+          <span className="brand-mark flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground"><TrendingUp className="h-4 w-4" /></span>
+          Vin Tracker
+        </Link>
         {title ? (
-          <header className="animate-rise mb-6 flex items-start justify-between gap-3">
+          <header data-enter className="mb-8 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="gradient-text text-[26px] leading-tight font-extrabold tracking-tight">
+              <h1 className="font-display text-[26px] leading-tight font-extrabold text-foreground">
                 {title}
               </h1>
               {subtitle ? (
@@ -36,18 +39,19 @@ export function AppShell({
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {action}
+              <Button asChild variant="outline" size="icon" className="settings-control h-11 w-11 rounded-2xl bg-card text-muted-foreground shadow-card">
               <Link
                 to="/settings"
                 aria-label="Settings"
-                className="press glass flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 text-muted-foreground"
                 activeProps={{ className: "text-primary" }}
               >
                 <Settings className="h-[18px] w-[18px]" />
               </Link>
+              </Button>
             </div>
           </header>
         ) : null}
-        <div className="animate-rise [animation-delay:60ms]">{children}</div>
+        <div data-enter>{children}</div>
       </div>
       <BottomNav />
     </div>
