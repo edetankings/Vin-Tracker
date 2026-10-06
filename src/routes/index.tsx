@@ -23,6 +23,14 @@ import {
 } from "@/lib/tasks";
 
 export const Route = createFileRoute("/")({
+  head: () => ({ meta: [
+    { title: "Today — Vin Tracker" },
+    { name: "description", content: "Plan today’s tasks, capture your learning, and build consistency with Vin Tracker." },
+    { property: "og:title", content: "Today — Vin Tracker" },
+    { property: "og:description", content: "Plan today’s tasks, capture your learning, and build consistency with Vin Tracker." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: () => (
     <AppGate>
       <HomePage />
@@ -58,20 +66,21 @@ function HomePage() {
 
   return (
     <AppShell title={`${greeting}, ${name}`} subtitle={format(today, "EEEE, d MMMM")}>
-      <section className="rounded-3xl bg-primary p-5 text-primary-foreground shadow-lg shadow-primary/20">
-        <div className="flex items-center gap-5">
-          <div className="relative flex items-center justify-center">
+      <div className="home-overview">
+      <section data-enter data-depth className="home-progress progress-surface rounded-[32px] p-6 text-primary-foreground">
+        <div className="flex items-center gap-5 sm:gap-7">
+          <div className="dimensional-ring relative flex shrink-0 items-center justify-center">
             <div className="[&_circle:first-child]:stroke-primary-foreground/25 [&_circle:last-child]:stroke-primary-foreground">
-              <ProgressRing percent={percent} />
+              <ProgressRing percent={percent} size={80} stroke={6} />
             </div>
             <span className="absolute text-lg font-bold">{percent}%</span>
           </div>
-          <div className="min-w-0">
+          <div className="progress-copy min-w-0">
             <p className="text-sm/5 opacity-90">Today's progress</p>
-            <p className="mt-1 text-2xl font-bold">
+            <p className="mt-1 font-display text-2xl font-bold">
               {done} of {todays.length} done
             </p>
-            <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium opacity-90">
+            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-2.5 py-1 text-xs font-medium">
               <Flame className="h-3.5 w-3.5" />
               {current} day streak
             </p>
@@ -79,8 +88,9 @@ function HomePage() {
         </div>
       </section>
 
-      <div className="mt-5 mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold">Today's tasks</h2>
+      <section data-enter className="home-tasks min-w-0">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-bold">Today's tasks</h2>
         <span className="text-xs text-muted-foreground">{todays.length} total</span>
       </div>
 
@@ -122,10 +132,11 @@ function HomePage() {
           <CheckCircle2 className="h-4 w-4" /> All done for today. Great work!
         </div>
       ) : null}
+      </section>
 
-      <section className="mt-6">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold">Recently Learned</h2>
+      <section data-enter className="home-learning min-w-0">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold">Recently Learned</h2>
           <Link to="/notes" className="text-xs font-medium text-primary">
             View All Notes
           </Link>
@@ -133,7 +144,7 @@ function HomePage() {
         {notes.length === 0 ? (
           <Link
             to="/notes"
-            className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-4 text-sm text-muted-foreground"
+            className="learning-note flex items-center gap-3 rounded-[24px] border border-border bg-card p-5 text-sm text-muted-foreground shadow-card"
           >
             <NotebookPen className="h-5 w-5 text-primary" />
             Capture what you learn — add your first note.
@@ -144,7 +155,7 @@ function HomePage() {
               <Link
                 key={note.id}
                 to="/notes"
-                className="block rounded-2xl border border-border bg-card p-4 shadow-card"
+                className="learning-note block rounded-[24px] border border-border bg-card p-5 shadow-card"
               >
                 <p className="truncate text-sm font-semibold">{note.title}</p>
                 {note.content ? (
@@ -158,6 +169,7 @@ function HomePage() {
           </div>
         )}
       </section>
+      </div>
 
       <TaskSheet open={sheetOpen} onOpenChange={setSheetOpen} task={editing} />
     </AppShell>
