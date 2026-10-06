@@ -25,7 +25,6 @@ export function ProgressRing({
   return (
     <svg width={size} height={size} className="-rotate-90" role="img" aria-label={`${percent}% complete`}>
       <circle
-        ref={ring}
         cx={size / 2}
         cy={size / 2}
         r={radius}
@@ -34,6 +33,7 @@ export function ProgressRing({
         className="stroke-primary/15"
       />
       <circle
+        ref={ring}
         cx={size / 2}
         cy={size / 2}
         r={radius}
