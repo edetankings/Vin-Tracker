@@ -12,8 +12,8 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center rounded-3xl border border-dashed border-border bg-card/60 px-6 py-10 text-center">
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+    <div className="empty-surface flex flex-col items-center rounded-[32px] border border-dashed border-border bg-card/60 px-6 py-10 text-center">
+      <div className="empty-icon mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-soft text-primary [&_svg]:size-8">
         {icon}
       </div>
       <p className="text-base font-semibold">{title}</p>

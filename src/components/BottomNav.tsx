@@ -1,5 +1,8 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { BarChart3, CalendarDays, Home, ListChecks, NotebookPen, Plus } from "lucide-react";
+import { useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { useInterfaceMotion } from "@/hooks/use-interface-motion";
 
 import { emitAddTask } from "@/lib/add-task-bus";
 
@@ -31,6 +34,7 @@ function NavLink({
       to={to}
       activeOptions={{ exact: to === "/" }}
       className={linkClass}
+      data-tactile
       activeProps={{ className: "text-primary" }}
     >
       {({ isActive }) => (
@@ -38,7 +42,7 @@ function NavLink({
           <span
             className={
               isActive
-                ? "hero-gradient flex h-8 w-full max-w-[46px] items-center justify-center rounded-2xl text-primary-foreground shadow-[0_8px_18px_-8px_oklch(0.45_0.19_265/0.8)] transition-all"
+                 ? "nav-active flex h-8 w-full max-w-[46px] items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all"
                 : "flex h-8 w-full max-w-[46px] items-center justify-center rounded-2xl transition-all"
             }
           >
@@ -52,6 +56,8 @@ function NavLink({
 }
 
 export function BottomNav() {
+  const nav = useRef<HTMLElement>(null);
+  useInterfaceMotion(nav);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -66,21 +72,23 @@ export function BottomNav() {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(env(safe-area-inset-bottom,0px)+10px)]">
-      <div className="glass mx-auto flex max-w-md items-stretch justify-between rounded-[26px] border border-border/70 px-1.5 py-1.5 shadow-[0_16px_40px_-16px_oklch(0.3_0.09_265/0.4)]">
+    <nav ref={nav} aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+20px)]">
+      <div data-enter className="navigation-dock glass mx-auto flex max-w-md items-stretch justify-between rounded-[28px] border border-border/70 px-1.5 py-2">
         {left.map((item) => (
           <NavLink key={item.to} {...item} />
         ))}
 
         <div className="flex flex-1 items-center justify-center">
-          <button
+          <Button
             type="button"
             onClick={addTask}
             aria-label="Add task"
-            className="hero-gradient press -mt-6 flex h-14 w-14 items-center justify-center rounded-full text-primary-foreground shadow-[0_12px_26px_-10px_oklch(0.45_0.19_265/0.9)] transition-transform active:scale-95"
+            title="Add task"
+            size="icon"
+            className="add-task-control -mt-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-4 border-background bg-primary text-primary-foreground [&_svg]:size-6"
           >
             <Plus className="h-6 w-6" strokeWidth={2.6} />
-          </button>
+          </Button>
         </div>
 
         {right.map((item) => (

@@ -1,5 +1,6 @@
 import { Check, Clock, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 import {
   DropdownMenu,
@@ -33,8 +34,10 @@ export function TaskItem({
   const time = formatTime(task.time);
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3.5 shadow-card">
-      <button
+    <div className="task-surface flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+      <Button
+        variant="ghost"
+        size="icon"
         type="button"
         aria-label={task.completed ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
         onClick={() => {
@@ -43,7 +46,7 @@ export function TaskItem({
           onToggle(task);
         }}
         className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 p-0 transition-colors",
           task.completed
             ? "border-success bg-success text-success-foreground"
             : "border-border bg-transparent text-transparent",
@@ -51,7 +54,7 @@ export function TaskItem({
         )}
       >
         <Check className="h-4 w-4" strokeWidth={3} />
-      </button>
+      </Button>
 
       <div className="min-w-0 flex-1">
         <p
