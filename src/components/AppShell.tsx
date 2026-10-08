@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Settings, TrendingUp } from "lucide-react";
+import { Settings } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 
 import { BottomNav } from "@/components/BottomNav";
@@ -24,7 +24,7 @@ export function AppShell({
     <div ref={container} className="interface-shell relative min-h-screen bg-background">
       <div className="relative z-10 mx-auto w-full max-w-md px-6 pt-7 pb-36 sm:max-w-lg lg:max-w-2xl">
         <Link to="/" className="mb-6 inline-flex items-center gap-2 text-xs font-bold text-foreground" aria-label="Vin Tracker home">
-          <span className="brand-mark flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground"><TrendingUp className="h-4 w-4" /></span>
+          <span className="brand-mark flex h-7 w-7 items-center justify-center rounded-lg bg-primary font-display text-[15px] font-extrabold italic text-primary-foreground">R</span>
           Vin Tracker
         </Link>
         {title ? (
