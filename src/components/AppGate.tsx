@@ -9,8 +9,15 @@ export function AppGate({ children }: { children: ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="welcome-screen" role="status" aria-label="Loading Vin Tracker">
+        <div className="welcome-layout !block">
+          <div className="welcome-brand">
+            <img src="/images/vin-icon.png" alt="" width={94} height={94} />
+            <h1>Vin Tracker</h1>
+            <p>Track your tasks. Build consistency.</p>
+            <div className="mx-auto mt-10 h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        </div>
       </div>
     );
   }

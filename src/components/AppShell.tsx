@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Settings } from "lucide-react";
+import { Bell, Settings } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 
 import { BottomNav } from "@/components/BottomNav";
-import { Button } from "@/components/ui/button";
 import { useInterfaceMotion } from "@/hooks/use-interface-motion";
+import { navigationItems } from "@/lib/navigation";
+import { useAuth } from "@/lib/auth";
 
 export function AppShell({
   title,
@@ -19,40 +20,84 @@ export function AppShell({
 }) {
   const container = useRef<HTMLDivElement>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const { name } = useAuth();
   useInterfaceMotion(container, pathname);
   return (
-    <div ref={container} className="interface-shell relative min-h-screen bg-background">
-      <div className="relative z-10 mx-auto w-full max-w-md px-6 pt-7 pb-36 sm:max-w-lg lg:max-w-2xl">
-        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-xs font-bold text-foreground" aria-label="Vin Tracker home">
-          <span className="brand-mark flex h-7 w-7 items-center justify-center rounded-lg bg-primary font-display text-[15px] font-extrabold italic text-primary-foreground">R</span>
-          Vin Tracker
+    <div ref={container} className="interface-shell" data-page={pathname.slice(1) || "home"}>
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+      <aside className="desktop-sidebar">
+        <Link to="/" className="sidebar-brand" aria-label="Vin Tracker home">
+          <img src="/images/vin-icon.png" alt="" width={36} height={36} />
+          <span>Vin Tracker</span>
         </Link>
-        {title ? (
-          <header data-enter className="mb-8 flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="font-display text-[26px] leading-tight font-extrabold text-foreground">
-                {title}
-              </h1>
-              {subtitle ? (
-                <p className="mt-1 text-[13px] font-medium text-muted-foreground">{subtitle}</p>
-              ) : null}
+        <p className="sidebar-caption">YOUR WORKSPACE</p>
+        <nav aria-label="Desktop navigation" className="sidebar-navigation">
+          {navigationItems.map(({ to, label, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              activeOptions={{ exact: to === "/" }}
+              activeProps={{ className: "is-active" }}
+            >
+              <Icon size={18} /> <span>{label}</span>
+            </Link>
+          ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="sidebar-motivation">
+            <span className="text-lg">✦</span>
+            <p>
+              A little progress,
+              <br />
+              every single day.
+            </p>
+          </div>
+          <Link
+            to="/settings"
+            className="sidebar-settings"
+            activeProps={{ className: "is-active" }}
+          >
+            <Settings size={18} /> Settings
+          </Link>
+          <div className="sidebar-profile">
+            <span className="profile-avatar">{name?.slice(0, 1).toUpperCase() || "V"}</span>
+            <div>
+              <strong>{name || "Your workspace"}</strong>
+              <small>Personal account</small>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              {action}
-              <Button asChild variant="outline" size="icon" className="settings-control h-11 w-11 rounded-2xl bg-card text-muted-foreground shadow-card">
-              <Link
-                to="/settings"
-                aria-label="Settings"
-                activeProps={{ className: "text-primary" }}
-              >
-                <Settings className="h-[18px] w-[18px]" />
-              </Link>
-              </Button>
-            </div>
-          </header>
-        ) : null}
-        <div data-enter>{children}</div>
-      </div>
+          </div>
+        </div>
+      </aside>
+      <main id="main-content" className="workspace" tabIndex={-1}>
+        <header data-enter className="workspace-header">
+          <div className="min-w-0">
+            {title ? <h1>{title}</h1> : null}
+            {subtitle ? <p className="page-subtitle">{subtitle}</p> : null}
+          </div>
+          <div className="header-controls">
+            <div className="header-action">{action}</div>
+            <Link
+              to="/settings"
+              hash="notifications"
+              className="header-icon"
+              aria-label="Notification settings"
+            >
+              <Bell size={18} />
+            </Link>
+            <Link to="/settings" className="header-icon settings-shortcut" aria-label="Settings">
+              <Settings size={18} />
+            </Link>
+            <Link to="/settings" className="profile-avatar" aria-label="Your profile">
+              {name?.slice(0, 1).toUpperCase() || "V"}
+            </Link>
+          </div>
+        </header>
+        <div data-enter className="page-content">
+          {children}
+        </div>
+      </main>
       <BottomNav />
     </div>
   );

@@ -5,16 +5,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import {
-  toDateKey,
-  useCategories,
-  useTaskMutations,
-  type Priority,
-  type Task,
-} from "@/lib/tasks";
+import { toDateKey, useCategories, useTaskMutations, type Priority, type Task } from "@/lib/tasks";
 
 const priorities: Priority[] = ["low", "medium", "high"];
 
@@ -98,15 +98,18 @@ export function TaskSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="max-h-[92vh] overflow-y-auto rounded-t-3xl border-border px-5 pb-[calc(env(safe-area-inset-bottom,0px)+20px)]"
+        className="responsive-sheet border-border px-5 pb-[calc(env(safe-area-inset-bottom,0px)+20px)]"
       >
         <SheetHeader className="px-0">
-          <SheetTitle className="text-xl">{task ? "Edit task" : "New task"}</SheetTitle>
+          <SheetTitle className="text-xl">{task ? "Edit task" : "Add Task"}</SheetTitle>
+          <SheetDescription className="sr-only">
+            Plan your task, date, time, priority and category.
+          </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={submit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="task-title">Task</Label>
+            <Label htmlFor="task-title">Task title</Label>
             <Input
               id="task-title"
               value={title}
@@ -196,14 +199,23 @@ export function TaskSheet({
                   placeholder="Category name"
                   className="h-11 rounded-2xl"
                 />
-                <Button type="button" variant="secondary" className="h-11 rounded-2xl" onClick={saveCategory}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-11 rounded-2xl"
+                  onClick={saveCategory}
+                >
                   Save
                 </Button>
               </div>
             ) : null}
           </div>
 
-          <Button type="submit" disabled={saving} className="h-12 w-full rounded-2xl text-base font-semibold">
+          <Button
+            type="submit"
+            disabled={saving}
+            className="h-12 w-full rounded-2xl text-base font-semibold"
+          >
             {task ? "Save changes" : "Add Task"}
           </Button>
         </form>

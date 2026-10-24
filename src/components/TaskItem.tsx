@@ -1,4 +1,4 @@
-import { Check, Clock, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Check, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -9,13 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { formatTime, type Task } from "@/lib/tasks";
-
-const priorityStyles: Record<Task["priority"], string> = {
-  low: "bg-muted text-muted-foreground",
-  medium: "bg-warning-soft text-warning",
-  high: "bg-primary-soft text-accent-foreground",
-};
+import { format } from "date-fns";
+import { formatTime, fromDateKey, type Task } from "@/lib/tasks";
 
 export function TaskItem({
   task,
@@ -34,67 +29,58 @@ export function TaskItem({
   const time = formatTime(task.time);
 
   return (
-    <div className="task-surface flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-      <Button
-        variant="ghost"
-        size="icon"
-        type="button"
-        aria-label={task.completed ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
-        onClick={() => {
-          setPop(true);
-          window.setTimeout(() => setPop(false), 320);
-          onToggle(task);
-        }}
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 p-0 transition-colors",
-          task.completed
-            ? "border-success bg-success text-success-foreground"
-            : "border-border bg-transparent text-transparent",
-          pop && "animate-pop",
-        )}
-      >
-        <Check className="h-4 w-4" strokeWidth={3} />
-      </Button>
-
-      <div className="min-w-0 flex-1">
-        <p
+    <div className="task-surface">
+      <div className="task-name-cell flex min-w-0 flex-1 items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          type="button"
+          role="checkbox"
+          aria-checked={task.completed}
+          aria-label={task.completed ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
+          onClick={() => {
+            setPop(true);
+            window.setTimeout(() => setPop(false), 320);
+            onToggle(task);
+          }}
           className={cn(
-            "truncate text-[15px] font-semibold leading-tight",
-            task.completed && "text-muted-foreground line-through",
+            "task-check h-5 w-5 p-0",
+            task.completed
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-transparent text-transparent",
+            pop && "animate-pop",
           )}
         >
-          {task.title}
-        </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-          {time ? (
-            <span className="inline-flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {time}
-            </span>
-          ) : null}
-          {showDate ? <span>{showDate}</span> : null}
-          {task.category ? (
-            <span className="rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">
-              {task.category}
-            </span>
-          ) : null}
-          <span
-            className={cn(
-              "rounded-full px-2 py-0.5 font-medium capitalize",
-              priorityStyles[task.priority],
-            )}
-          >
-            {task.priority}
-          </span>
+          <Check className="h-4 w-4" strokeWidth={3} />
+        </Button>
+
+        <div className="min-w-0 flex-1">
+          <p className={cn("task-title", task.completed && "text-muted-foreground line-through")}>
+            {task.title}
+          </p>
+          <div className="task-meta">
+            {time ? <span>{time}</span> : <span>No time set</span>}
+            {showDate ? <span>{showDate}</span> : null}
+            {task.category ? <span>{task.category}</span> : null}
+          </div>
         </div>
       </div>
+      <span className={`priority-badge task-mobile-priority priority-${task.priority}`}>
+        {task.priority}
+      </span>
+      <span className="task-desktop-cell">{format(fromDateKey(task.date), "MMM d, yyyy")}</span>
+      <span className="task-desktop-cell">{time || "—"}</span>
+      <span className="task-desktop-cell">
+        <span className={`priority-badge priority-${task.priority}`}>{task.priority}</span>
+      </span>
+      <span className="task-desktop-cell">{task.category || "—"}</span>
+      <span className="task-desktop-cell" aria-label={task.completed ? "Completed" : "Pending"}>
+        <span className={`task-status inline-block ${task.completed ? "complete" : ""}`} />
+      </span>
 
       {onEdit || onDelete ? (
         <DropdownMenu>
-          <DropdownMenuTrigger
-            aria-label="Task options"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary"
-          >
+          <DropdownMenuTrigger aria-label="Task options" className="task-options">
             <MoreVertical className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

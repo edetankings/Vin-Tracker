@@ -50,6 +50,9 @@ function createSupabaseClient() {
       fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
     },
     auth: {
+      flowType: "pkce",
+      // The callback route exchanges the code explicitly, once.
+      detectSessionInUrl: false,
       persistSession: true,
       autoRefreshToken: true,
     },

@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { profileErrorMessage } from "@/lib/profile-registration";
 import { useAuth } from "@/lib/auth";
 
 export function Onboarding() {
-  const { register } = useAuth();
+  const { register, googleConnected } = useAuth();
+  const [started, setStarted] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (busy) return;
+    setErrorMessage(null);
     if (!name.trim()) {
       toast.error("Please enter your name");
       return;
@@ -21,54 +27,109 @@ export function Onboarding() {
       await register(name);
     } catch (error) {
       console.error("Profile setup failed", error);
-      const detail = error instanceof Error ? error.message : "";
-      toast.error("Could not set up your profile. Please try again.", {
-        description: detail || undefined,
-      });
+      const detail = profileErrorMessage(error);
+      setErrorMessage(detail);
+      toast.error("Could not set up your profile", { description: detail });
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-background px-6">
-      <div className="mx-auto w-full max-w-sm">
-        <img
-          src="/images/vin-icon.png"
-          alt="Vin Tracker logo"
-          width={72}
-          height={72}
-          className="h-18 w-18 rounded-3xl"
-        />
-        <h1 className="mt-6 text-3xl font-bold tracking-tight">Vin Tracker</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Track your tasks. Build consistency.</p>
-
-        <form onSubmit={submit} className="mt-8 space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium">
-              What should we call you?
-            </label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Kingsley"
-              autoComplete="given-name"
-              enterKeyHint="go"
-              className="h-13 rounded-2xl text-base"
-            />
+    <div className="welcome-screen">
+      <div className="welcome-layout">
+        <div>
+          <div className="welcome-brand">
+            <img src="/images/vin-icon.png" alt="Vin Tracker logo" width={94} height={94} />
+            <h1>Vin Tracker</h1>
+            <p>Track your tasks. Build consistency.</p>
           </div>
-          <Button
-            type="submit"
-            disabled={busy}
-            className="h-13 w-full rounded-2xl text-base font-semibold"
-          >
-            Continue
-          </Button>
-        </form>
-        <p className="mt-6 text-xs text-muted-foreground">
-          No email, no password. Your tasks are stored securely and stay with you on this device.
-        </p>
+          <p className="welcome-promise">
+            Make room for what matters.
+            <br />
+            One task. One day. A little better.
+          </p>
+        </div>
+        <div>
+          {started ? (
+            <div className="welcome-form">
+              <h2>Welcome to Vin Tracker</h2>
+              <p>
+                Plan your tasks, stay consistent, track your progress, and write down what you
+                learn.
+              </p>
+              {googleConnected ? (
+                <p className="mt-5 text-xs font-medium text-primary">
+                  Google connected. Confirm your name to finish setting up your workspace.
+                </p>
+              ) : (
+                <div className="mt-6">
+                  <GoogleAuthButton disabled={busy} />
+                  <div className="my-5 flex items-center gap-3 text-[10px] text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" />
+                    or continue with your name
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                </div>
+              )}
+              <form onSubmit={submit} className="mt-7 space-y-5">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-xs font-semibold">
+                    Your name
+                  </label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="What should we call you?"
+                    autoComplete="given-name"
+                    enterKeyHint="go"
+                    autoFocus
+                    maxLength={80}
+                    disabled={busy}
+                    aria-invalid={!!errorMessage}
+                    aria-describedby={errorMessage ? "profile-error" : undefined}
+                  />
+                </div>
+                {errorMessage ? (
+                  <p
+                    id="profile-error"
+                    role="alert"
+                    className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-xs leading-5 text-destructive"
+                  >
+                    {errorMessage}
+                  </p>
+                ) : null}
+                <Button type="submit" disabled={busy} className="w-full font-semibold">
+                  {busy ? "Setting up your space…" : "Continue"}
+                </Button>
+              </form>
+              <p className="welcome-footnote">Let's make today count.</p>
+            </div>
+          ) : (
+            <div className="welcome-form">
+              <h2>Your day, a little clearer.</h2>
+              <p>
+                A simple place to plan your tasks, capture your learning, and see how far you've
+                come.
+              </p>
+              <div className="mt-6">
+                <GoogleAuthButton />
+              </div>
+              <Button
+                onClick={() => setStarted(true)}
+                className="welcome-start !mt-4"
+                variant="secondary"
+              >
+                Continue without Google <span aria-hidden="true">→</span>
+              </Button>
+              <p className="welcome-footnote">A simple way to stay on track.</p>
+            </div>
+          )}
+          <p className="welcome-footnote">
+            Connect Google to access your saved tasks and notes on your other devices.
+          </p>
+        </div>
       </div>
     </div>
   );
