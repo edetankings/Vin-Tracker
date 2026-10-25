@@ -62,3 +62,14 @@ Desktop.ini
 *.njsproj
 *.sln
 *.sw?
+
+# Android signing material and generated packages
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+*.apk
+*.aab
+android/local.properties
+android/.gradle/
+android/**/build/

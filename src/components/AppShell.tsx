@@ -1,3 +1,4 @@
+import { APP_ICON } from "@/lib/app-meta";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, Settings } from "lucide-react";
 import { useRef, type ReactNode } from "react";
@@ -29,7 +30,7 @@ export function AppShell({
       </a>
       <aside className="desktop-sidebar">
         <Link to="/" className="sidebar-brand" aria-label="Vin Tracker home">
-          <img src="/images/vin-icon.png" alt="" width={36} height={36} />
+          <img src={APP_ICON} alt="" width={36} height={36} />
           <span>Vin Tracker</span>
         </Link>
         <p className="sidebar-caption">YOUR WORKSPACE</p>

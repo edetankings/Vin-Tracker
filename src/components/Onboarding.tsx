@@ -1,3 +1,4 @@
+import { APP_ICON } from "@/lib/app-meta";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -39,7 +40,7 @@ export function Onboarding() {
       <div className="welcome-layout">
         <div>
           <div className="welcome-brand">
-            <img src="/images/vin-icon.png" alt="Vin Tracker logo" width={94} height={94} />
+            <img src={APP_ICON} alt="Vin Tracker logo" width={94} height={94} />
             <h1>Vin Tracker</h1>
             <p>Track your tasks. Build consistency.</p>
           </div>

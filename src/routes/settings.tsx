@@ -17,6 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { APP_VERSION } from "@/lib/app-meta";
 import { AppGate } from "@/components/AppGate";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -47,7 +48,6 @@ import { useTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useTaskMutations, useTasks, toDateKey } from "@/lib/tasks";
 
-const APP_VERSION = "1.0.0";
 const NOTIF_KEY = "vin-reminders-enabled";
 
 function loadReminderPref() {

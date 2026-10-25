@@ -1,3 +1,4 @@
+import { APP_ICON } from "@/lib/app-meta";
 import type { ReactNode } from "react";
 
 import { BackgroundServices } from "@/components/BackgroundServices";
@@ -12,7 +13,7 @@ export function AppGate({ children }: { children: ReactNode }) {
       <div className="welcome-screen" role="status" aria-label="Loading Vin Tracker">
         <div className="welcome-layout !block">
           <div className="welcome-brand">
-            <img src="/images/vin-icon.png" alt="" width={94} height={94} />
+            <img src={APP_ICON} alt="" width={94} height={94} />
             <h1>Vin Tracker</h1>
             <p>Track your tasks. Build consistency.</p>
             <div className="mx-auto mt-10 h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />

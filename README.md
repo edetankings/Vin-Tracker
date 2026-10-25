@@ -94,3 +94,26 @@ opening a pull request. Do not include browser exports or private environment
 files in issues, pull requests or screenshots. Include a short explanation of the
 change and how you checked it. Commit authorship should reflect the person making
 the change; this project does not add automatic co-author attribution.
+
+## Android branding and version 1.1.0
+
+The app now displays version **1.1.0** and uses a blue V-and-checkmark logo in the
+welcome screen, navigation, browser favicon and task notifications. Android
+browser installation uses versioned 192px/512px icons and a separate padded
+maskable icon. The manifest keeps its original app ID, start URL and scope, so
+this branding update does not intentionally create a new installed web app or
+change the local-data storage key.
+
+The app and browser installation remain password-free. After deployment, Android
+Chrome can detect the changed manifest icon URLs and may ask you to review the
+new icon. Publishing source code alone does not update a hosted installation.
+Avoid uninstalling the app or clearing site data to refresh the logo; export a
+backup first if you need to reinstall or move to another origin.
+
+Native APK build files are not present in this repository. Prepared launcher PNGs
+and packaging notes are in [assets/android/v1.1.0](assets/android/v1.1.0/README.md).
+A standalone APK's Android version code and signature must be updated in its
+original build project or packaging tool. Changing the web app's version does
+not rebuild or re-sign an existing APK.
+
+[Chrome app icon updates](https://developer.chrome.com/blog/improvements-to-web-app-updates)
