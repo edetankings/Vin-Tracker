@@ -1,14 +1,27 @@
 # Vin Tracker
 
+**Public repository:** [edetankings/Vin-Tracker](https://github.com/edetankings/Vin-Tracker)
+
 A personal task and learning tracker built with React 19, TanStack Start, Vite,
 Tailwind CSS and GSAP. Profiles, tasks, notes and categories are saved locally in
 this browser. There is no signup server, Google login, API key or database to configure.
+
+## Features
+
+- Daily task planning, priorities and custom categories.
+- Calendar views, completion rates, streaks and progress charts.
+- Searchable learning notes with editing and deletion.
+- Responsive desktop sidebar and phone navigation.
+- Light, dark and system themes, plus browser task reminders.
+- Local persistence and JSON backup export/restore.
 
 ## Run locally
 
 Use Node.js 22.18+ (Node 24 recommended).
 
 ```sh
+git clone https://github.com/edetankings/Vin-Tracker.git
+cd Vin-Tracker
 npm ci --legacy-peer-deps
 npm run dev
 ```
@@ -59,3 +72,25 @@ The existing Cloudflare build target remains through Nitro. The build generates
 `.output/public` and the worker in `.output/server`. Keep your current hosting
 account and domain. Building does not deploy. The app stores its data in the
 visitor's browser; the worker does not host an authentication service or database.
+
+## What belongs in Git
+
+The `.gitignore` keeps local environment files and credentials, dependencies,
+build output, caches, Cloudflare development state, logs, test/coverage artifacts,
+editor files and personal `vin-tracker-export-*.json` backups out of new commits.
+The `.env.example` template, source code, lockfiles and archived migration records
+remain tracked. Personal backups belong outside the repository.
+
+Ignore rules do not remove files already committed or erase Git history. Check
+`git status` and review staged files before pushing. Use placeholders in examples,
+and never commit private keys or real personal exports. GitHub repository
+visibility controls access to source and history; it does not upload or synchronize
+the data saved in your browser.
+
+## Contributing
+
+Create a branch, make your change and run the verification commands above before
+opening a pull request. Do not include browser exports or private environment
+files in issues, pull requests or screenshots. Include a short explanation of the
+change and how you checked it. Commit authorship should reflect the person making
+the change; this project does not add automatic co-author attribution.
