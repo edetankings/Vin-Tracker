@@ -5,7 +5,7 @@ import { Onboarding } from "@/components/Onboarding";
 import { useAuth } from "@/lib/auth";
 
 export function AppGate({ children }: { children: ReactNode }) {
-  const { ready, userId, name } = useAuth();
+  const { ready, userId, name, storageError, retryStorage } = useAuth();
 
   if (!ready) {
     return (
@@ -21,6 +21,25 @@ export function AppGate({ children }: { children: ReactNode }) {
       </div>
     );
   }
+
+  if (storageError)
+    return (
+      <div className="welcome-screen">
+        <div className="relative z-10 mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-7">
+          <h1 className="text-xl font-bold">Unable to open your saved workspace</h1>
+          <p role="alert" className="mt-4 text-sm leading-6 text-destructive">
+            {storageError}
+          </p>
+          <button
+            type="button"
+            onClick={retryStorage}
+            className="mt-6 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
 
   if (!userId || !name) return <Onboarding />;
 

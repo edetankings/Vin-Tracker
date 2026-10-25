@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { storageErrorMessage } from "@/lib/local-store";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { toDateKey, useCategories, useTaskMutations, type Priority, type Task } from "@/lib/tasks";
@@ -76,8 +77,8 @@ export function TaskSheet({
         toast.success("Task added");
       }
       onOpenChange(false);
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (error) {
+      toast.error(storageErrorMessage(error));
     }
   };
 
@@ -89,8 +90,8 @@ export function TaskSheet({
       setCategory(name);
       setNewCategory("");
       setShowNewCategory(false);
-    } catch {
-      toast.error("That category already exists");
+    } catch (error) {
+      toast.error(storageErrorMessage(error));
     }
   };
 

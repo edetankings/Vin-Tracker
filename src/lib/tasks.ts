@@ -1,7 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format, parseISO, startOfMonth, startOfWeek } from "date-fns";
 
-import { supabase } from "@/integrations/supabase/client";
+import {
+  readLocalData,
+  createLocalTask,
+  updateLocalTask,
+  toggleLocalTask,
+  deleteLocalTask,
+  deleteAllLocalTasks,
+  addLocalCategory,
+  storageErrorMessage,
+} from "./local-store";
+import { toast } from "sonner";
 
 export type Priority = "low" | "medium" | "high";
 
@@ -45,98 +55,60 @@ export function useTasks(userId: string | null) {
   return useQuery({
     queryKey: ["tasks", userId],
     enabled: !!userId,
-    queryFn: async (): Promise<Task[]> => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("date", { ascending: true })
-        .order("time", { ascending: true, nullsFirst: true })
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as Task[];
-    },
+    queryFn: async (): Promise<Task[]> =>
+      readLocalData()
+        .tasks.filter((task) => task.user_id === userId)
+        .sort(
+          (a, b) =>
+            a.date.localeCompare(b.date) ||
+            (a.time ?? "").localeCompare(b.time ?? "") ||
+            a.created_at.localeCompare(b.created_at),
+        ),
   });
 }
-
 export function useCategories(userId: string | null) {
   return useQuery({
     queryKey: ["categories", userId],
     enabled: !!userId,
-    queryFn: async (): Promise<string[]> => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("name")
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      const custom = (data ?? []).map((row) => row.name as string);
-      return Array.from(new Set([...DEFAULT_CATEGORIES, ...custom]));
-    },
+    queryFn: async () =>
+      Array.from(new Set([...DEFAULT_CATEGORIES, ...readLocalData().categories])),
   });
 }
-
 export function useTaskMutations(userId: string | null) {
   const queryClient = useQueryClient();
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["tasks", userId] });
   };
-
+  const report = (error: unknown) => toast.error(storageErrorMessage(error));
   const createTask = useMutation({
-    mutationFn: async (input: TaskInput) => {
-      if (!userId) throw new Error("Not signed in");
-      const { error } = await supabase.from("tasks").insert({ ...input, user_id: userId });
-      if (error) throw error;
-    },
+    mutationFn: async (input: TaskInput) => createLocalTask(userId, input),
     onSuccess: invalidate,
   });
-
   const updateTask = useMutation({
-    mutationFn: async ({ id, changes }: { id: string; changes: Partial<TaskInput> }) => {
-      const { error } = await supabase.from("tasks").update(changes).eq("id", id);
-      if (error) throw error;
-    },
+    mutationFn: async ({ id, changes }: { id: string; changes: Partial<TaskInput> }) =>
+      updateLocalTask(userId, id, changes),
     onSuccess: invalidate,
   });
-
   const toggleTask = useMutation({
-    mutationFn: async (task: Task) => {
-      const next = !task.completed;
-      const { error } = await supabase
-        .from("tasks")
-        .update({ completed: next, completed_at: next ? new Date().toISOString() : null })
-        .eq("id", task.id);
-      if (error) throw error;
-    },
+    mutationFn: async (task: Task) => toggleLocalTask(userId, task.id),
     onSuccess: invalidate,
+    onError: report,
   });
-
   const deleteTask = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("tasks").delete().eq("id", id);
-      if (error) throw error;
-    },
+    mutationFn: async (id: string) => deleteLocalTask(userId, id),
     onSuccess: invalidate,
+    onError: report,
   });
-
   const deleteAllTasks = useMutation({
-    mutationFn: async () => {
-      if (!userId) throw new Error("Not signed in");
-      const { error } = await supabase.from("tasks").delete().eq("user_id", userId);
-      if (error) throw error;
-    },
+    mutationFn: async () => deleteAllLocalTasks(userId),
     onSuccess: invalidate,
   });
-
   const addCategory = useMutation({
-    mutationFn: async (name: string) => {
-      if (!userId) throw new Error("Not signed in");
-      const { error } = await supabase.from("categories").insert({ name, user_id: userId });
-      if (error) throw error;
-    },
+    mutationFn: async (name: string) => addLocalCategory(userId, name),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["categories", userId] });
     },
   });
-
   return { createTask, updateTask, toggleTask, deleteTask, deleteAllTasks, addCategory };
 }
 

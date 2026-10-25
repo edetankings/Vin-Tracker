@@ -65,7 +65,7 @@ export function AppShell({
             <span className="profile-avatar">{name?.slice(0, 1).toUpperCase() || "V"}</span>
             <div>
               <strong>{name || "Your workspace"}</strong>
-              <small>Personal account</small>
+              <small>Local profile</small>
             </div>
           </div>
         </div>

@@ -11,12 +11,12 @@ import {
   Palette,
   Database,
   Info,
-  CheckCircle2,
+  HardDrive,
+  Upload,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { AppGate } from "@/components/AppGate";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -33,6 +33,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  readLocalData,
+  replaceLocalData,
+  validateLocalData,
+  storageErrorMessage,
+  type LocalData,
+} from "@/lib/local-store";
 import { useAuth } from "@/lib/auth";
 import { useInstallApp } from "@/lib/pwa";
 import { requestNotificationPermission, setRemindersEnabled } from "@/lib/reminders";
@@ -77,11 +84,16 @@ const themes: { value: Theme; label: string; icon: typeof Sun }[] = [
 ];
 
 function SettingsPage() {
-  const { userId, name, googleConnected, email, updateName, signOutAndForget } = useAuth();
+  const { userId, name, updateName, resetLocalData } = useAuth();
   const { theme, setTheme } = useTheme();
   const { data: tasks = [] } = useTasks(userId);
   const { deleteAllTasks } = useTaskMutations(userId);
   const [draft, setDraft] = useState(name ?? "");
+  const importInput = useRef<HTMLInputElement>(null);
+  const [pendingImport, setPendingImport] = useState<LocalData | null>(null);
+  useEffect(() => {
+    setDraft(name ?? "");
+  }, [name]);
   const [saving, setSaving] = useState(false);
   const [reminders, setReminders] = useState(loadReminderPref);
   const { canInstall, installed, install } = useInstallApp();
@@ -116,8 +128,7 @@ function SettingsPage() {
       app: "Vin Tracker",
       version: APP_VERSION,
       exported_at: new Date().toISOString(),
-      profile: { name },
-      tasks,
+      ...readLocalData(),
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -138,8 +149,8 @@ function SettingsPage() {
     try {
       await updateName(draft);
       toast.success("Name updated");
-    } catch {
-      toast.error("Couldn't save your name");
+    } catch (error) {
+      toast.error(storageErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -177,7 +188,7 @@ function SettingsPage() {
               <span className="profile-avatar">{name?.slice(0, 1).toUpperCase()}</span>
               <div>
                 <p className="text-sm font-bold">{name}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Personal account</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Local profile</p>
               </div>
             </div>
             <Label htmlFor="name" className="text-sm font-semibold">
@@ -194,30 +205,15 @@ function SettingsPage() {
                 Save
               </Button>
             </div>
-            <div className="mt-6 border-t border-border pt-5">
-              <p className="text-sm font-semibold">
-                {googleConnected ? "Connected to Google" : "Keep access to your workspace"}
-              </p>
-              {googleConnected ? (
-                <div className="mt-3 flex items-start gap-2 rounded-lg bg-success-soft p-3 text-xs text-success">
-                  <CheckCircle2 size={17} className="shrink-0" />
-                  <div>
-                    <p className="break-all font-medium">{email || "Google account connected"}</p>
-                    <p className="mt-1 leading-5">
-                      Sign in with this Google account on another device to access your tasks and
-                      notes.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <p className="mt-2 mb-4 text-xs leading-6 text-muted-foreground">
-                    Connect Google so you can sign in again on any device. Your current tasks and
-                    notes stay with this profile.
-                  </p>
-                  <GoogleAuthButton label="Connect Google account" />
-                </>
-              )}
+            <div className="mt-6 flex items-start gap-3 rounded-lg bg-secondary p-4">
+              <HardDrive size={18} className="mt-0.5 shrink-0 text-primary" />
+              <div>
+                <p className="text-xs font-semibold">Saved in this browser</p>
+                <p className="mt-1 text-xs leading-6 text-muted-foreground">
+                  Your profile, tasks and notes stay on this device. Export a backup before clearing
+                  browser data or switching browsers.
+                </p>
+              </div>
             </div>
           </section>
 
@@ -324,6 +320,62 @@ function SettingsPage() {
               <Button variant="outline" className="w-full" onClick={exportData}>
                 <Download className="mr-2 h-4 w-4" /> Export my data
               </Button>
+              <input
+                ref={importInput}
+                type="file"
+                accept="application/json,.json"
+                className="sr-only"
+                aria-label="Import a Vin Tracker backup"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (!file) return;
+                  void file
+                    .text()
+                    .then((text) => setPendingImport(validateLocalData(JSON.parse(text))))
+                    .catch((error) => toast.error(storageErrorMessage(error)));
+                }}
+              />
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => importInput.current?.click()}
+              >
+                <Upload className="mr-2 h-4 w-4" /> Restore backup
+              </Button>
+              <AlertDialog
+                open={!!pendingImport}
+                onOpenChange={(next) => {
+                  if (!next) setPendingImport(null);
+                }}
+              >
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Restore this backup?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This replaces the profile and all tasks, notes and categories saved in this
+                      browser with the backup. Export your current data first if you want to keep
+                      it.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        try {
+                          replaceLocalData(pendingImport);
+                          toast.success("Backup restored");
+                          setPendingImport(null);
+                        } catch (error) {
+                          toast.error(storageErrorMessage(error));
+                        }
+                      }}
+                    >
+                      Restore backup
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="w-full">
@@ -356,30 +408,28 @@ function SettingsPage() {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" className="w-full text-destructive">
-                    {googleConnected ? "Sign out" : "Reset app on this device"}
+                    Delete all local data
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {googleConnected ? "Sign out of Vin Tracker?" : "Reset Vin Tracker?"}
-                    </AlertDialogTitle>
+                    <AlertDialogTitle>Delete all local data?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      {googleConnected
-                        ? "Your tasks and notes stay saved. Sign in with the same Google account to access them again."
-                        : "You'll be signed out and asked for your name again. Your saved tasks stay on this profile but won't be reachable without it. Connect Google first to keep access."}
+                      This removes your profile, tasks, notes and custom categories from this
+                      browser. Export a backup first if you want to keep them. This cannot be
+                      undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => {
-                        void signOutAndForget().catch(() =>
-                          toast.error("Could not sign out. Please try again."),
+                        void resetLocalData().catch((error) =>
+                          toast.error(storageErrorMessage(error)),
                         );
                       }}
                     >
-                      {googleConnected ? "Sign out" : "Reset"}
+                      Delete local data
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

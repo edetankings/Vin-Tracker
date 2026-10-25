@@ -17,13 +17,23 @@ export function ProgressRing({
   useEffect(() => {
     const media = gsap.matchMedia();
     media.add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.fromTo(ring.current, { strokeDashoffset: circumference }, { strokeDashoffset: offset, duration: 0.9, ease: "power3.out" });
+      gsap.fromTo(
+        ring.current,
+        { strokeDashoffset: circumference },
+        { strokeDashoffset: offset, duration: 0.9, ease: "power3.out" },
+      );
     });
     return () => media.revert();
   }, [circumference, offset]);
 
   return (
-    <svg width={size} height={size} className="-rotate-90" role="img" aria-label={`${percent}% complete`}>
+    <svg
+      width={size}
+      height={size}
+      className="-rotate-90"
+      role="img"
+      aria-label={`${percent}% complete`}
+    >
       <circle
         cx={size / 2}
         cy={size / 2}

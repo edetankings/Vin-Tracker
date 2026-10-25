@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { useDesktop } from "@/hooks/use-desktop";
+import { storageErrorMessage } from "@/lib/local-store";
 import { useAuth } from "@/lib/auth";
 import { useNoteMutations, useNotes, type Note } from "@/lib/notes";
 
@@ -96,8 +97,8 @@ function NotesPage() {
         toast.success("Note saved");
       }
       setOpen(false);
-    } catch {
-      toast.error("Could not save your note");
+    } catch (error) {
+      toast.error(storageErrorMessage(error));
     }
   };
 

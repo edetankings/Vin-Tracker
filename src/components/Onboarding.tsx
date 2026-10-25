@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { profileErrorMessage } from "@/lib/profile-registration";
+import { storageErrorMessage } from "@/lib/local-store";
 import { useAuth } from "@/lib/auth";
 
 export function Onboarding() {
-  const { register, googleConnected } = useAuth();
+  const { register } = useAuth();
   const [started, setStarted] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -27,7 +26,7 @@ export function Onboarding() {
       await register(name);
     } catch (error) {
       console.error("Profile setup failed", error);
-      const detail = profileErrorMessage(error);
+      const detail = storageErrorMessage(error);
       setErrorMessage(detail);
       toast.error("Could not set up your profile", { description: detail });
     } finally {
@@ -58,20 +57,6 @@ export function Onboarding() {
                 Plan your tasks, stay consistent, track your progress, and write down what you
                 learn.
               </p>
-              {googleConnected ? (
-                <p className="mt-5 text-xs font-medium text-primary">
-                  Google connected. Confirm your name to finish setting up your workspace.
-                </p>
-              ) : (
-                <div className="mt-6">
-                  <GoogleAuthButton disabled={busy} />
-                  <div className="my-5 flex items-center gap-3 text-[10px] text-muted-foreground">
-                    <span className="h-px flex-1 bg-border" />
-                    or continue with your name
-                    <span className="h-px flex-1 bg-border" />
-                  </div>
-                </div>
-              )}
               <form onSubmit={submit} className="mt-7 space-y-5">
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-xs font-semibold">
@@ -113,21 +98,14 @@ export function Onboarding() {
                 A simple place to plan your tasks, capture your learning, and see how far you've
                 come.
               </p>
-              <div className="mt-6">
-                <GoogleAuthButton />
-              </div>
-              <Button
-                onClick={() => setStarted(true)}
-                className="welcome-start !mt-4"
-                variant="secondary"
-              >
-                Continue without Google <span aria-hidden="true">→</span>
+              <Button onClick={() => setStarted(true)} className="welcome-start">
+                Get started <span aria-hidden="true">→</span>
               </Button>
               <p className="welcome-footnote">A simple way to stay on track.</p>
             </div>
           )}
           <p className="welcome-footnote">
-            Connect Google to access your saved tasks and notes on your other devices.
+            No account needed. Your tasks and notes are saved in this browser.
           </p>
         </div>
       </div>
