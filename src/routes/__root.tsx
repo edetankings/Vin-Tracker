@@ -11,6 +11,8 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { APP_FAVICON, APP_TOUCH_ICON } from "@/lib/app-meta";
+import { AppUpdateProvider } from "@/lib/app-update-provider";
+import { AppUpdateNotice } from "@/components/AppUpdateNotice";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
@@ -141,11 +143,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-          <Toaster position="top-center" />
-        </AuthProvider>
+        <AppUpdateProvider>
+          <AuthProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <Toaster position="top-center" />
+            <AppUpdateNotice />
+          </AuthProvider>
+        </AppUpdateProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

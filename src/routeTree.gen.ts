@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppVersionDotjsonRouteImport } from './routes/app-version[.]json'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as NotesRouteImport } from './routes/notes'
 import { Route as ProgressRouteImport } from './routes/progress'
@@ -19,6 +20,11 @@ import { Route as TasksRouteImport } from './routes/tasks'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppVersionDotjsonRoute = AppVersionDotjsonRouteImport.update({
+  id: '/app-version.json',
+  path: '/app-version.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -49,6 +55,7 @@ const TasksRoute = TasksRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app-version.json': typeof AppVersionDotjsonRoute
   '/calendar': typeof CalendarRoute
   '/notes': typeof NotesRoute
   '/progress': typeof ProgressRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app-version.json': typeof AppVersionDotjsonRoute
   '/calendar': typeof CalendarRoute
   '/notes': typeof NotesRoute
   '/progress': typeof ProgressRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app-version.json': typeof AppVersionDotjsonRoute
   '/calendar': typeof CalendarRoute
   '/notes': typeof NotesRoute
   '/progress': typeof ProgressRoute
@@ -74,12 +83,27 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/notes' | '/progress' | '/settings' | '/tasks'
+  fullPaths:
+    | '/'
+    | '/app-version.json'
+    | '/calendar'
+    | '/notes'
+    | '/progress'
+    | '/settings'
+    | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/notes' | '/progress' | '/settings' | '/tasks'
+  to:
+    | '/'
+    | '/app-version.json'
+    | '/calendar'
+    | '/notes'
+    | '/progress'
+    | '/settings'
+    | '/tasks'
   id:
     | '__root__'
     | '/'
+    | '/app-version.json'
     | '/calendar'
     | '/notes'
     | '/progress'
@@ -89,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppVersionDotjsonRoute: typeof AppVersionDotjsonRoute
   CalendarRoute: typeof CalendarRoute
   NotesRoute: typeof NotesRoute
   ProgressRoute: typeof ProgressRoute
@@ -103,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app-version.json': {
+      id: '/app-version.json'
+      path: '/app-version.json'
+      fullPath: '/app-version.json'
+      preLoaderRoute: typeof AppVersionDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -145,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppVersionDotjsonRoute: AppVersionDotjsonRoute,
   CalendarRoute: CalendarRoute,
   NotesRoute: NotesRoute,
   ProgressRoute: ProgressRoute,

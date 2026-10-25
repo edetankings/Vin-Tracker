@@ -13,10 +13,12 @@ import {
   Info,
   HardDrive,
   Upload,
+  RefreshCw,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { useAppUpdates } from "@/lib/app-update-state";
 import { APP_VERSION } from "@/lib/app-meta";
 import { AppGate } from "@/components/AppGate";
 import { AppShell } from "@/components/AppShell";
@@ -85,6 +87,7 @@ const themes: { value: Theme; label: string; icon: typeof Sun }[] = [
 
 function SettingsPage() {
   const { userId, name, updateName, resetLocalData } = useAuth();
+  const updates = useAppUpdates();
   const { theme, setTheme } = useTheme();
   const { data: tasks = [] } = useTasks(userId);
   const { deleteAllTasks } = useTaskMutations(userId);
@@ -287,7 +290,38 @@ function SettingsPage() {
             id="app"
             className="mt-4 rounded-3xl border border-border bg-card p-4 shadow-card"
           >
-            <p className="text-sm font-semibold">App</p>
+            <p className="text-sm font-semibold">App updates</p>
+            <p className="mt-2 text-xs text-muted-foreground">Installed version {APP_VERSION}</p>
+            <p className="mt-2 text-xs leading-6 text-muted-foreground">
+              {updates.latest
+                ? `Version ${updates.latest.version} has an update ready.`
+                : updates.status === "current"
+                  ? "You're using the latest published build."
+                  : updates.status === "checking"
+                    ? "Checking for updates…"
+                    : "Checks run automatically when you open the app and while it is visible."}
+            </p>
+            {updates.error ? (
+              <p role="alert" className="mt-2 text-xs leading-5 text-destructive">
+                {updates.error}
+              </p>
+            ) : null}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                onClick={() => void updates.checkForUpdates()}
+                disabled={updates.status === "checking" || updates.updating}
+              >
+                <RefreshCw className={updates.status === "checking" ? "animate-spin" : ""} />
+                {updates.status === "checking" ? "Checking…" : "Check for updates"}
+              </Button>
+              {updates.latest ? (
+                <Button onClick={() => void updates.applyUpdate()} disabled={updates.updating}>
+                  {updates.updating ? "Updating…" : "Update now"}
+                </Button>
+              ) : null}
+            </div>
+            <p className="mt-6 border-t border-border pt-5 text-sm font-semibold">Install app</p>
             <div className="mt-3 flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 <Smartphone className="h-4 w-4" />

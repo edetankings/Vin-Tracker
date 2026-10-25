@@ -117,3 +117,28 @@ original build project or packaging tool. Changing the web app's version does
 not rebuild or re-sign an existing APK.
 
 [Chrome app icon updates](https://developer.chrome.com/blog/improvements-to-web-app-updates)
+
+## In-app updates — 1.1.1
+
+The app checks for a newer deployed build on launch, on return to the foreground,
+on reconnection, and once per minute while visible. A notice offers **Update now**
+and **Remind me later**. Settings → App updates also provides a manual check.
+
+Update now checks connectivity and the current deployment before reloading the
+same page with a fresh document URL. Saved profile data, tasks, notes and
+categories stay in local storage. Finish unsaved edits first: a reload replaces
+open forms. An offline or failed check leaves the app and its saved data intact.
+Dismissing a notice hides that build for the current session; a different future
+build can show a new notice.
+
+Vite injects the package version and a unique build ID into both client and
+server. The same-origin `/app-version.json` route returns the deployed release
+with `Cache-Control: no-store`. It contains no user data or credentials and needs
+no external update service. Different builds are detected even when they share
+the same package version.
+
+Deploy the client assets and server worker from the same production build.
+GitHub pushes only become visible as app updates once your hosting pipeline has
+built and deployed them. Existing open copies without this updater need a normal
+refresh/reopen to load it initially. This updates the hosted web app/PWA content;
+it does not silently install native APKs or replace Android signing identities.
